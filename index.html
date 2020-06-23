@@ -9,6 +9,27 @@
     />
   </head>
   <body>
+    <div class="todoapp">
+      <!-- 3. id属性をJavaScriptのために指定 -->
+      <form id="js-task-form">
+        <input
+          id="js-task-form-input"
+          class="new-todo"
+          type="text"
+          placeholder="タスクを追加"
+          autocomplete="off"
+        />
+      </form>
+      <!-- 4. TodoアプリのメインとなるTodoリスト -->
+      <div id="js-task-list" class="task-list">
+        <!-- 動的に更新されるTodoリスト -->
+      </div>
+      <footer class="footer">
+        <!-- 5. Todoアイテム数の表示 -->
+        <span id="js-task-count">Task数: 0</span>
+      </footer>
+    </div>
+
     <!-- 2. class属性をCSSのために指定 -->
     <div class="todoapp">
       <!-- 3. id属性をJavaScriptのために指定 -->
@@ -17,7 +38,7 @@
           id="js-form-input"
           class="new-todo"
           type="text"
-          placeholder="What need to be done?"
+          placeholder="今日のTodoは？"
           autocomplete="off"
         />
       </form>
