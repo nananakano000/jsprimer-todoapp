@@ -1,11 +1,18 @@
-import { render } from "./view/html-util.js";
-import { TodoListView } from "./view/TodoListView.js";
-import { TodoItemModel } from "./model/TodoItemModel.js";
-import { TodoListModel } from "./model/TodoListModel.js";
+import { render } from './view/html-util.js';
+import { TodoListView } from './view/TodoListView.js';
+import { TodoItemModel } from './model/TodoItemModel.js';
+import { TodoListModel } from './model/TodoListModel.js';
+
+import firebase from '../plugins/firebase.js';
 
 export class App {
     // 紐づけするHTML要素を引数として受け取る
-    constructor({ formElement, formInputElement, todoListContainerElement, todoCountElement }) {
+    constructor({
+        formElement,
+        formInputElement,
+        todoListContainerElement,
+        todoCountElement,
+    }) {
         this.todoListView = new TodoListView();
         this.todoListModel = new TodoListModel([]);
         // bind to Element
@@ -24,8 +31,27 @@ export class App {
      * @param {string} title
      */
     handleAdd(title) {
-        this.todoListModel.addTodo(new TodoItemModel({ title, completed: false }));
-    };
+        let aTodoItemModel = new TodoItemModel({ title, completed: false });
+        this.todoListModel.addTodo(
+            aTodoItemModel
+        );
+        
+        const db = firebase.firestore();
+        console.log(db);
+        const todoItem = {
+            id: aTodoItemModel.id,
+            title: aTodoItemModel.title,
+            completed: aTodoItemModel.completed,
+        };
+        db.collection('todoItems')
+            .add(todoItem)
+            .then(function (docRef) {
+                console.log('Document written with ID: ', docRef.id);
+            })
+            .catch(function (error) {
+                console.error('Error adding document: ', error);
+            });
+    }
 
     /**
      * Todoの状態を更新時に呼ばれるリスナー関数
@@ -33,7 +59,7 @@ export class App {
      */
     handleUpdate({ id, completed }) {
         this.todoListModel.updateTodo({ id, completed });
-    };
+    }
 
     /**
      * Todoを削除時に呼ばれるリスナー関数
@@ -41,7 +67,7 @@ export class App {
      */
     handleDelete({ id }) {
         this.todoListModel.deleteTodo({ id });
-    };
+    }
 
     /**
      * フォームを送信時に呼ばれるリスナー関数
@@ -51,7 +77,7 @@ export class App {
         event.preventDefault();
         const inputElement = this.formInputElement;
         this.handleAdd(inputElement.value);
-        inputElement.value = "";
+        inputElement.value = '';
     }
 
     /**
@@ -68,7 +94,7 @@ export class App {
             },
             onDeleteTodo: ({ id }) => {
                 this.handleDelete({ id });
-            }
+            },
         });
         render(todoListElement, todoListContainerElement);
         todoCountElement.textContent = `Todoアイテム数: ${this.todoListModel.getTotalCount()}`;
@@ -79,7 +105,7 @@ export class App {
      */
     mount() {
         this.todoListModel.onChange(this.handleChange);
-        this.formElement.addEventListener("submit", this.handleSubmit);
+        this.formElement.addEventListener('submit', this.handleSubmit);
     }
 
     /**
@@ -87,6 +113,6 @@ export class App {
      */
     unmount() {
         this.todoListModel.offChange(this.handleChange);
-        this.formElement.removeEventListener("submit", this.handleSubmit);
+        this.formElement.removeEventListener('submit', this.handleSubmit);
     }
 }
