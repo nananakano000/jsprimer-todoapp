@@ -15,6 +15,23 @@ export class App {
     }) {
         this.todoListView = new TodoListView();
         this.todoListModel = new TodoListModel([]);
+        const db = firebase.firestore();
+        db.collection('todoItems')
+            .get()
+            .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    // console.log(doc.data());
+                    const todoItemData = doc.data();
+                    const todoItem = new TodoItemModel({
+                        id: doc.id,
+                        title: todoItemData.title,
+                        completed: todoItemData.completed,
+                    });
+                    // console.log(todoItem);
+                    this.todoListModel.addTodo(todoItem);
+                });
+            });
+
         // bind to Element
         this.formElement = formElement;
         this.formInputElement = formInputElement;
@@ -31,26 +48,38 @@ export class App {
      * @param {string} title
      */
     handleAdd(title) {
-        let aTodoItemModel = new TodoItemModel({ title, completed: false });
-        this.todoListModel.addTodo(
-            aTodoItemModel
-        );
-        
+        const self = this;
         const db = firebase.firestore();
         console.log(db);
         const todoItem = {
-            id: aTodoItemModel.id,
-            title: aTodoItemModel.title,
-            completed: aTodoItemModel.completed,
+            id: 0,
+            title: title,
+            completed: false,
         };
         db.collection('todoItems')
             .add(todoItem)
             .then(function (docRef) {
                 console.log('Document written with ID: ', docRef.id);
+                docRef.get().then(function(doc) {
+                    db.collection('todoItems').doc(doc.id).update({
+                        id: doc.id,
+                    });
+                    self.todoListModel.addTodo(
+                        new TodoItemModel({
+                            id: doc.id,
+                            title: doc.data().title,
+                            completed: false,
+                        })
+                    );
+                }).catch(function(error) {
+                    console.log("Error getting document:", error);
+                });
             })
             .catch(function (error) {
                 console.error('Error adding document: ', error);
             });
+
+            console.log(this.todoListModel)
     }
 
     /**
@@ -67,6 +96,17 @@ export class App {
      */
     handleDelete({ id }) {
         this.todoListModel.deleteTodo({ id });
+
+        const db = firebase.firestore();
+        db.collection('todoItems')
+            .doc(id)
+            .delete()
+            .then(function () {
+                console.log('Document successfully deleted!');
+            })
+            .catch(function (error) {
+                console.error('Error removing document: ', error);
+            });
     }
 
     /**
