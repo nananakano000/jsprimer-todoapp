@@ -60,26 +60,37 @@ export class App {
             .add(todoItem)
             .then(function (docRef) {
                 console.log('Document written with ID: ', docRef.id);
-                docRef.get().then(function(doc) {
-                    db.collection('todoItems').doc(doc.id).update({
-                        id: doc.id,
+                docRef
+                    .get()
+                    .then(function (doc) {
+                        self.dbUpdateIdFor(doc);
+                        self.todoListModel.addTodo(
+                            new TodoItemModel({
+                                id: doc.id,
+                                title: doc.data().title,
+                                completed: false,
+                            })
+                        );
+                    })
+                    .catch(function (error) {
+                        console.log('Error getting document:', error);
                     });
-                    self.todoListModel.addTodo(
-                        new TodoItemModel({
-                            id: doc.id,
-                            title: doc.data().title,
-                            completed: false,
-                        })
-                    );
-                }).catch(function(error) {
-                    console.log("Error getting document:", error);
-                });
             })
             .catch(function (error) {
                 console.error('Error adding document: ', error);
             });
+    }
 
-            console.log(this.todoListModel)
+    dbUpdateIdFor(doc) {
+        const db = firebase.firestore();
+        db.collection('todoItems')
+            .doc(doc.id)
+            .update({
+                id: doc.id,
+            })
+            .catch(function (error) {
+                console.error('Error upda document: ', error);
+            });
     }
 
     /**
@@ -88,6 +99,22 @@ export class App {
      */
     handleUpdate({ id, completed }) {
         this.todoListModel.updateTodo({ id, completed });
+        this.dbUpdateCompletedFor(id, completed);
+    }
+
+    dbUpdateCompletedFor(id, completed) {
+        const db = firebase.firestore();
+        db.collection('todoItems')
+            .doc(id)
+            .update({
+                completed: completed,
+            })
+            .then(function () {
+                console.log('Document successfully update!');
+            })
+            .catch(function (error) {
+                console.error('Error updating document: ', error);
+            });
     }
 
     /**
@@ -96,7 +123,10 @@ export class App {
      */
     handleDelete({ id }) {
         this.todoListModel.deleteTodo({ id });
+        this.dbDeletedFor(id);
+    }
 
+    dbDeletedFor(id) {
         const db = firebase.firestore();
         db.collection('todoItems')
             .doc(id)
