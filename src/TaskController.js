@@ -1,13 +1,38 @@
-import { render } from "./view/html-util.js";
-import { TaskListView } from "./view/TaskListView.js";
-import { TaskItemModel } from "./model/TaskItemModel.js";
-import { TaskListModel } from "./model/TaskListModel.js";
+import { render } from './view/html-util.js';
+import { TaskListView } from './view/TaskListView.js';
+import { TaskItemModel } from './model/TaskItemModel.js';
+import { TaskListModel } from './model/TaskListModel.js';
+
+import firebase from '../plugins/firebase.js';
 
 export class TaskController {
     // 紐づけするHTML要素を引数として受け取る
-    constructor({ taskFormElement, taskFormInputElement, taskListContainerElement, taskCountElement }) {
+    constructor({
+        taskFormElement,
+        taskFormInputElement,
+        taskListContainerElement,
+        taskCountElement,
+    }) {
         this.taskListView = new TaskListView();
         this.taskListModel = new TaskListModel([]);
+
+        const db = firebase.firestore();
+        db.collection('taskItems')
+            .get()
+            .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    // console.log(doc.data());
+                    const taskItemData = doc.data();
+                    const taskItem = new TaskItemModel({
+                        id: doc.id,
+                        title: taskItemData.title,
+                        completed: taskItemData.completed,
+                    });
+                    // console.log(taskItem);
+                    this.taskListModel.addTask(taskItem);
+                });
+            });
+
         // bind to Element
         this.taskFormElement = taskFormElement;
         this.taskFormInputElement = taskFormInputElement;
@@ -24,8 +49,51 @@ export class TaskController {
      * @param {string} title
      */
     handleAdd(title) {
-        this.taskListModel.addTask(new TaskItemModel({ title, completed: false }));
-    };
+        // this.taskListModel.addTask(new TaskItemModel({ title, completed: false }));
+        const self = this;
+        const db = firebase.firestore();
+        console.log(db);
+        const taskItem = {
+            id: 0,
+            title: title,
+            completed: false,
+        };
+        db.collection('taskItems')
+            .add(taskItem)
+            .then(function (docRef) {
+                console.log('Document written with ID: ', docRef.id);
+                docRef
+                    .get()
+                    .then(function (doc) {
+                        self.dbUpdateIdFor(doc);
+                        self.taskListModel.addTask(
+                            new TaskItemModel({
+                                id: doc.id,
+                                title: doc.data().title,
+                                completed: false,
+                            })
+                        );
+                    })
+                    .catch(function (error) {
+                        console.log('Error getting document:', error);
+                    });
+            })
+            .catch(function (error) {
+                console.error('Error adding document: ', error);
+            });
+    }
+
+    dbUpdateIdFor(doc) {
+        const db = firebase.firestore();
+        db.collection('taskItems')
+            .doc(doc.id)
+            .update({
+                id: doc.id,
+            })
+            .catch(function (error) {
+                console.error('Error upda document: ', error);
+            });
+    }
 
     /**
      * Taskの状態を更新時に呼ばれるリスナー関数
@@ -33,7 +101,23 @@ export class TaskController {
      */
     handleUpdate({ id, completed }) {
         this.taskListModel.updateTask({ id, completed });
-    };
+        this.dbUpdateCompletedFor(id, completed);
+    }
+
+    dbUpdateCompletedFor(id, completed) {
+        const db = firebase.firestore();
+        db.collection('taskItems')
+            .doc(id)
+            .update({
+                completed: completed,
+            })
+            .then(function () {
+                console.log('Document successfully update!');
+            })
+            .catch(function (error) {
+                console.error('Error updating document: ', error);
+            });
+    }
 
     /**
      * Taskを削除時に呼ばれるリスナー関数
@@ -41,7 +125,21 @@ export class TaskController {
      */
     handleDelete({ id }) {
         this.taskListModel.deleteTask({ id });
-    };
+        this.dbDeletedFor(id);
+    }
+
+    dbDeletedFor(id) {
+        const db = firebase.firestore();
+        db.collection('taskItems')
+            .doc(id)
+            .delete()
+            .then(function () {
+                console.log('Document successfully deleted!');
+            })
+            .catch(function (error) {
+                console.error('Error removing document: ', error);
+            });
+    }
 
     /**
      * フォームを送信時に呼ばれるリスナー関数
@@ -51,7 +149,7 @@ export class TaskController {
         event.preventDefault();
         const inputElement = this.taskFormInputElement;
         this.handleAdd(inputElement.value);
-        inputElement.value = "";
+        inputElement.value = '';
     }
 
     /**
@@ -68,7 +166,7 @@ export class TaskController {
             },
             onDeleteTask: ({ id }) => {
                 this.handleDelete({ id });
-            }
+            },
         });
         render(taskListElement, taskListContainerElement);
         taskCountElement.textContent = `Task数: ${this.taskListModel.getTotalCount()}`;
@@ -79,7 +177,7 @@ export class TaskController {
      */
     mount() {
         this.taskListModel.onChange(this.handleChange);
-        this.taskFormElement.addEventListener("submit", this.handleSubmit);
+        this.taskFormElement.addEventListener('submit', this.handleSubmit);
     }
 
     /**
@@ -87,6 +185,6 @@ export class TaskController {
      */
     unmount() {
         this.taskListModel.offChange(this.handleChange);
-        this.taskFormElement.removeEventListener("submit", this.handleSubmit);
+        this.taskFormElement.removeEventListener('submit', this.handleSubmit);
     }
 }
