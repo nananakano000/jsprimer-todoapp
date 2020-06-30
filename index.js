@@ -1,4 +1,4 @@
-import { App } from './src/App.js';
+import { TodoController } from './src/TodoController.js';
 import { TaskController } from './src/TaskController.js';
 
 const formElement = document.querySelector('#js-form');
@@ -6,7 +6,7 @@ const formInputElement = document.querySelector('#js-form-input');
 const todoCountElement = document.querySelector('#js-todo-count');
 const todoListContainerElement = document.querySelector('#js-todo-list');
 
-const app = new App({
+const todoController = new TodoController({
     formElement,
     formInputElement,
     todoCountElement,
@@ -18,19 +18,18 @@ const taskFormInputElement = document.querySelector('#js-task-form-input');
 const taskCountElement = document.querySelector('#js-task-count');
 const taskListContainerElement = document.querySelector('#js-task-list');
 
-const taskCtl = new TaskController({
+const taskController = new TaskController({
     taskFormElement,
     taskFormInputElement,
     taskCountElement,
     taskListContainerElement,
 });
 
-
 window.addEventListener('load', () => {
-    app.mount();
-    taskCtl.mount();
+    todoController.mount();
+    taskController.mount();
 });
 window.addEventListener('unload', () => {
-    app.unmount();
-    taskCtl.unmount();
+    todoController.unmount();
+    taskController.unmount();
 });

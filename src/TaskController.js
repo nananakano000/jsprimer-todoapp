@@ -32,6 +32,7 @@ export class TaskController {
                     this.taskListModel.addTask(taskItem);
                 });
             });
+        console.log(this.taskListModel);
 
         // bind to Element
         this.taskFormElement = taskFormElement;
@@ -129,6 +130,7 @@ export class TaskController {
     }
 
     dbDeletedFor(id) {
+        // console.log(id)
         const db = firebase.firestore();
         db.collection('taskItems')
             .doc(id)
@@ -138,6 +140,46 @@ export class TaskController {
             })
             .catch(function (error) {
                 console.error('Error removing document: ', error);
+            });
+    }
+
+    handleAddTaskToTodo({ id }) {
+        // const newarr = [0, 1, 3].filter(n=>n>0)
+        // console.log(newarr)
+        const addItems = this.taskListModel
+            .getTaskItems()
+            .filter((taskItem) => taskItem.id === id);
+        // console.log(addItems[0].id)
+        const db = firebase.firestore();
+        console.log(db);
+        const taskItem = {
+            id: 0,
+            title: addItems[0].title,
+            completed: false,
+        };
+        db.collection('todoItems')
+            .add(taskItem)
+            .then(function (docRef) {
+                console.log('Document written with ID: ', docRef.id);
+                docRef
+                    .get()
+                    .then(function (doc) {
+                        const db = firebase.firestore();
+                        db.collection('todoItems')
+                            .doc(doc.id)
+                            .update({
+                                id: doc.id,
+                            })
+                            .catch(function (error) {
+                                console.error('Error upda document: ', error);
+                            });
+                    })
+                    .catch(function (error) {
+                        console.log('Error getting document:', error);
+                    });
+            })
+            .catch(function (error) {
+                console.error('Error adding document: ', error);
             });
     }
 
@@ -166,6 +208,9 @@ export class TaskController {
             },
             onDeleteTask: ({ id }) => {
                 this.handleDelete({ id });
+            },
+            onAddTaskToTodo: ({ id }) => {
+                this.handleAddTaskToTodo({ id });
             },
         });
         render(taskListElement, taskListContainerElement);

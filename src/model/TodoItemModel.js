@@ -6,7 +6,6 @@ export class TodoItemModel {
      */
     constructor({ id, title, completed }) {
         // idは自動的に連番となりそれぞれのインスタンス毎に異なるものとする
-        console.log(id)
         this.id = id;
         this.title = title;
         this.completed = completed;

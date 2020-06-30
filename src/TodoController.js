@@ -5,7 +5,7 @@ import { TodoListModel } from './model/TodoListModel.js';
 
 import firebase from '../plugins/firebase.js';
 
-export class App {
+export class TodoController {
     // 紐づけするHTML要素を引数として受け取る
     constructor({
         formElement,
@@ -31,6 +31,28 @@ export class App {
                     this.todoListModel.addTodo(todoItem);
                 });
             });
+
+        db.collection('todoItems').onSnapshot((querySnapshot) => {
+            console.log('変更！！');
+            this.todoListView = new TodoListView();
+            this.todoListModel = new TodoListModel([]);
+            db.collection('todoItems')
+                .get()
+                .then((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+                        // console.log(doc.data());
+                        const todoItemData = doc.data();
+                        const todoItem = new TodoItemModel({
+                            id: doc.id,
+                            title: todoItemData.title,
+                            completed: todoItemData.completed,
+                        });
+                        console.log(this.todoListModel);
+                        this.todoListModel.addTodo(todoItem);
+                    });
+                });
+                this.mount()
+        });
 
         // bind to Element
         this.formElement = formElement;
