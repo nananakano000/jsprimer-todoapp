@@ -1,7 +1,5 @@
 import firebase from 'firebase';
 
-console.log(firebase)
-
 if (!firebase.apps.length) {
     firebase.initializeApp({
         apiKey: 'AIzaSyDPbduLelOU43Xzh1rENsIrKTYWUA94Be4',

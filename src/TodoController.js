@@ -33,7 +33,7 @@ export class TodoController {
             });
 
         db.collection('todoItems').onSnapshot((querySnapshot) => {
-            console.log('変更！！');
+            // console.log('変更！！');
             this.todoListView = new TodoListView();
             this.todoListModel = new TodoListModel([]);
             db.collection('todoItems')
@@ -47,7 +47,6 @@ export class TodoController {
                             title: todoItemData.title,
                             completed: todoItemData.completed,
                         });
-                        console.log(this.todoListModel);
                         this.todoListModel.addTodo(todoItem);
                     });
                 });

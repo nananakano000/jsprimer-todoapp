@@ -27,13 +27,13 @@ export class TaskController {
                         id: doc.id,
                         title: taskItemData.title,
                         completed: taskItemData.completed,
+                        addCount: taskItemData.addCount,
+                        execCount: taskItemData.execCount,
                     });
                     // console.log(taskItem);
                     this.taskListModel.addTask(taskItem);
                 });
             });
-        console.log(this.taskListModel);
-
         // bind to Element
         this.taskFormElement = taskFormElement;
         this.taskFormInputElement = taskFormInputElement;
@@ -58,6 +58,8 @@ export class TaskController {
             id: 0,
             title: title,
             completed: false,
+            addCount: 0,
+            execCount: 0,
         };
         db.collection('taskItems')
             .add(taskItem)
@@ -71,7 +73,9 @@ export class TaskController {
                             new TaskItemModel({
                                 id: doc.id,
                                 title: doc.data().title,
-                                completed: false,
+                                completed: doc.data().completed,
+                                addCount: doc.data().addCount,
+                                execCount: doc.data().execCount,
                             })
                         );
                     })
@@ -152,13 +156,13 @@ export class TaskController {
         // console.log(addItems[0].id)
         const db = firebase.firestore();
         console.log(db);
-        const taskItem = {
+        const todoItem = {
             id: 0,
             title: addItems[0].title,
             completed: false,
         };
         db.collection('todoItems')
-            .add(taskItem)
+            .add(todoItem)
             .then(function (docRef) {
                 console.log('Document written with ID: ', docRef.id);
                 docRef

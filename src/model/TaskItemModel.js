@@ -4,11 +4,13 @@ export class TaskItemModel {
      * `completed`: Todoアイテムが完了済みならばtrue、そうでない場合はfalse
      * @param {{ title: string, completed: boolean }}
      */
-    constructor({ id, title, completed }) {
+    constructor({ id, title, completed, addCount, execCount }) {
         // idは自動的に連番となりそれぞれのインスタンス毎に異なるものとする
         this.id = id;
         this.title = title;
         this.completed = completed;
+        this.addCount = addCount;
+        this.execCount = execCount;
     }
 
     /**
