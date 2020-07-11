@@ -8,15 +8,18 @@ import firebase from '../plugins/firebase.js';
 export class TodoController {
     // 紐づけするHTML要素を引数として受け取る
     constructor({
+        user,
         formElement,
         formInputElement,
         todoListContainerElement,
         todoCountElement,
     }) {
+        this.user = user;
         this.todoListView = new TodoListView();
         this.todoListModel = new TodoListModel([]);
         const db = firebase.firestore();
         db.collection('todoItems')
+            .where('user', '==', this.user)
             .get()
             .then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
@@ -37,6 +40,7 @@ export class TodoController {
             this.todoListView = new TodoListView();
             this.todoListModel = new TodoListModel([]);
             db.collection('todoItems')
+                .where('user', '==', this.user)
                 .get()
                 .then((querySnapshot) => {
                     querySnapshot.forEach((doc) => {
@@ -50,7 +54,7 @@ export class TodoController {
                         this.todoListModel.addTodo(todoItem);
                     });
                 });
-                this.mount()
+            this.mount();
         });
 
         // bind to Element
@@ -76,6 +80,7 @@ export class TodoController {
             id: 0,
             title: title,
             completed: false,
+            user: this.user,
         };
         db.collection('todoItems')
             .add(todoItem)

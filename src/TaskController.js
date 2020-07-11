@@ -8,16 +8,19 @@ import firebase from '../plugins/firebase.js';
 export class TaskController {
     // 紐づけするHTML要素を引数として受け取る
     constructor({
+        user,
         taskFormElement,
         taskFormInputElement,
         taskListContainerElement,
         taskCountElement,
     }) {
+        this.user = user;
         this.taskListView = new TaskListView();
         this.taskListModel = new TaskListModel([]);
 
         const db = firebase.firestore();
         db.collection('taskItems')
+            .where('user', '==', this.user)
             .get()
             .then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
@@ -60,6 +63,7 @@ export class TaskController {
             completed: false,
             addCount: 0,
             execCount: 0,
+            user: this.user,
         };
         db.collection('taskItems')
             .add(taskItem)
