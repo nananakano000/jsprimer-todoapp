@@ -26,28 +26,28 @@ let taskController = new TaskController({
 });
 
 window.addEventListener('load', () => {
-    todoController.mount(document.getElementById('login-inp').value);
-    taskController.mount(document.getElementById('login-inp').value);
+    todoController.mount('');
+    taskController.mount('');
 });
 window.addEventListener('unload', () => {
     todoController.unmount();
     taskController.unmount();
 });
 
-// document.getElementById('login-btn').addEventListener('click', () => {
-//     // console.log(document.getElementById('login-inp').value);
-//     todoController = new TodoController({
-//         formElement,
-//         formInputElement,
-//         todoCountElement,
-//         todoListContainerElement,
-//     });
-//     taskController = new TaskController({
-//         taskFormElement,
-//         taskFormInputElement,
-//         taskCountElement,
-//         taskListContainerElement,
-//     });
-//     todoController.mount(document.getElementById('login-inp').value);
-//     taskController.mount(document.getElementById('login-inp').value);
-// });
+document.getElementById('login-btn').addEventListener('click', () => {
+    // console.log(document.getElementById('login-inp').value);
+    todoController = new TodoController({
+        formElement,
+        formInputElement,
+        todoCountElement,
+        todoListContainerElement,
+    });
+    taskController = new TaskController({
+        taskFormElement,
+        taskFormInputElement,
+        taskCountElement,
+        taskListContainerElement,
+    });
+    todoController.mount(document.getElementById('login-inp').value);
+    taskController.mount(document.getElementById('login-inp').value);
+});

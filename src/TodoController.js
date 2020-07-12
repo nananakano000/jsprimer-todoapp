@@ -13,7 +13,7 @@ export class TodoController {
         todoListContainerElement,
         todoCountElement,
     }) {
-        this.user = 'hayato';
+        this.user = '';
         this.todoListView = new TodoListView();
         this.todoListModel = new TodoListModel([]);
         const db = firebase.firestore();
@@ -21,6 +21,7 @@ export class TodoController {
             .where('user', '==', this.user)
             .get()
             .then((querySnapshot) => {
+                console.log(this.user);
                 querySnapshot.forEach((doc) => {
                     // console.log(doc.data());
                     const todoItemData = doc.data();
@@ -53,7 +54,7 @@ export class TodoController {
                         this.todoListModel.addTodo(todoItem);
                     });
                 });
-            this.mount();
+            // this.mount(this.user);
         });
 
         // bind to Element
@@ -65,6 +66,8 @@ export class TodoController {
         // `this`が常に`App`のインスタンスを示すようにする
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
+
+        console.log(this);
     }
 
     /**
@@ -74,7 +77,8 @@ export class TodoController {
     handleAdd(title) {
         const self = this;
         const db = firebase.firestore();
-        console.log(db);
+        console.log(title);
+        console.log(this);
         const todoItem = {
             id: 0,
             title: title,
@@ -200,6 +204,7 @@ export class TodoController {
      */
     mount(user) {
         this.user = user;
+        // console.log(this);
         this.todoListModel.onChange(this.handleChange);
         this.formElement.addEventListener('submit', this.handleSubmit);
     }

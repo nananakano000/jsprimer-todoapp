@@ -13,15 +13,15 @@ export class TaskController {
         taskListContainerElement,
         taskCountElement,
     }) {
-        this.user = 'hayato';
+        this.user = '';
         this.taskListView = new TaskListView();
         this.taskListModel = new TaskListModel([]);
-
         const db = firebase.firestore();
         db.collection('taskItems')
             .where('user', '==', this.user)
             .get()
             .then((querySnapshot) => {
+                // console.log(this.user);
                 querySnapshot.forEach((doc) => {
                     // console.log(doc.data());
                     const taskItemData = doc.data();
@@ -36,6 +36,31 @@ export class TaskController {
                     this.taskListModel.addTask(taskItem);
                 });
             });
+
+        db.collection('taskItems').onSnapshot((querySnapshot) => {
+            // console.log('変更！！');
+            this.taskListView = new TaskListView();
+            this.taskListModel = new TaskListModel([]);
+            db.collection('taskItems')
+                .where('user', '==', this.user)
+                .get()
+                .then((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+                        // console.log(doc.data());
+                        const taskItemData = doc.data();
+                        const taskItem = new TaskItemModel({
+                            id: doc.id,
+                            title: taskItemData.title,
+                            completed: taskItemData.completed,
+                            addCount: taskItemData.addCount,
+                            execCount: taskItemData.execCount,
+                        });
+                        this.taskListModel.addTask(taskItem);
+                    });
+                });
+            // this.mount(this.user);
+        });
+
         // bind to Element
         this.taskFormElement = taskFormElement;
         this.taskFormInputElement = taskFormInputElement;
@@ -55,7 +80,7 @@ export class TaskController {
         // this.taskListModel.addTask(new TaskItemModel({ title, completed: false }));
         const self = this;
         const db = firebase.firestore();
-        console.log(this.user);
+        // console.log(this);
         const taskItem = {
             id: 0,
             title: title,
@@ -158,12 +183,14 @@ export class TaskController {
             .filter((taskItem) => taskItem.id === id);
         // console.log(addItems[0].id)
         const db = firebase.firestore();
-        console.log(db);
+        // console.log(db);
         const todoItem = {
             id: 0,
             title: addItems[0].title,
             completed: false,
+            user: this.user,
         };
+        console.log(db);
         db.collection('todoItems')
             .add(todoItem)
             .then(function (docRef) {
@@ -229,7 +256,7 @@ export class TaskController {
      */
     mount(user) {
         this.user = user;
-        console.log(this.user)
+        // console.log(this);
         this.taskListModel.onChange(this.handleChange);
         this.taskFormElement.addEventListener('submit', this.handleSubmit);
     }
