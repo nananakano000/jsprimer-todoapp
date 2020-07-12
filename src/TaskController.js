@@ -8,13 +8,12 @@ import firebase from '../plugins/firebase.js';
 export class TaskController {
     // 紐づけするHTML要素を引数として受け取る
     constructor({
-        user,
         taskFormElement,
         taskFormInputElement,
         taskListContainerElement,
         taskCountElement,
     }) {
-        this.user = user;
+        this.user = 'hayato';
         this.taskListView = new TaskListView();
         this.taskListModel = new TaskListModel([]);
 
@@ -56,7 +55,7 @@ export class TaskController {
         // this.taskListModel.addTask(new TaskItemModel({ title, completed: false }));
         const self = this;
         const db = firebase.firestore();
-        console.log(db);
+        console.log(this.user);
         const taskItem = {
             id: 0,
             title: title,
@@ -228,7 +227,9 @@ export class TaskController {
     /**
      * アプリとDOMの紐づけを登録する関数
      */
-    mount() {
+    mount(user) {
+        this.user = user;
+        console.log(this.user)
         this.taskListModel.onChange(this.handleChange);
         this.taskFormElement.addEventListener('submit', this.handleSubmit);
     }

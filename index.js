@@ -1,15 +1,12 @@
 import { TodoController } from './src/TodoController.js';
 import { TaskController } from './src/TaskController.js';
 
-const user = 'hayato';
-
 const formElement = document.querySelector('#js-form');
 const formInputElement = document.querySelector('#js-form-input');
 const todoCountElement = document.querySelector('#js-todo-count');
 const todoListContainerElement = document.querySelector('#js-todo-list');
 
-const todoController = new TodoController({
-    user,
+let todoController = new TodoController({
     formElement,
     formInputElement,
     todoCountElement,
@@ -21,8 +18,7 @@ const taskFormInputElement = document.querySelector('#js-task-form-input');
 const taskCountElement = document.querySelector('#js-task-count');
 const taskListContainerElement = document.querySelector('#js-task-list');
 
-const taskController = new TaskController({
-    user,
+let taskController = new TaskController({
     taskFormElement,
     taskFormInputElement,
     taskCountElement,
@@ -30,10 +26,28 @@ const taskController = new TaskController({
 });
 
 window.addEventListener('load', () => {
-    todoController.mount();
-    taskController.mount();
+    todoController.mount(document.getElementById('login-inp').value);
+    taskController.mount(document.getElementById('login-inp').value);
 });
 window.addEventListener('unload', () => {
     todoController.unmount();
     taskController.unmount();
 });
+
+// document.getElementById('login-btn').addEventListener('click', () => {
+//     // console.log(document.getElementById('login-inp').value);
+//     todoController = new TodoController({
+//         formElement,
+//         formInputElement,
+//         todoCountElement,
+//         todoListContainerElement,
+//     });
+//     taskController = new TaskController({
+//         taskFormElement,
+//         taskFormInputElement,
+//         taskCountElement,
+//         taskListContainerElement,
+//     });
+//     todoController.mount(document.getElementById('login-inp').value);
+//     taskController.mount(document.getElementById('login-inp').value);
+// });

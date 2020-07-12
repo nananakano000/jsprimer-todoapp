@@ -8,13 +8,12 @@ import firebase from '../plugins/firebase.js';
 export class TodoController {
     // 紐づけするHTML要素を引数として受け取る
     constructor({
-        user,
         formElement,
         formInputElement,
         todoListContainerElement,
         todoCountElement,
     }) {
-        this.user = user;
+        this.user = 'hayato';
         this.todoListView = new TodoListView();
         this.todoListModel = new TodoListModel([]);
         const db = firebase.firestore();
@@ -199,7 +198,8 @@ export class TodoController {
     /**
      * アプリとDOMの紐づけを登録する関数
      */
-    mount() {
+    mount(user) {
+        this.user = user;
         this.todoListModel.onChange(this.handleChange);
         this.formElement.addEventListener('submit', this.handleSubmit);
     }
