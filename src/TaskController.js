@@ -15,28 +15,11 @@ export class TaskController {
     }) {
         this.user = '';
         this.taskListView = new TaskListView();
-        this.taskListModel = new TaskListModel([]);
-        const db = firebase.firestore();
-        db.collection('taskItems')
-            .where('user', '==', this.user)
-            .get()
-            .then((querySnapshot) => {
-                // console.log(this.user);
-                querySnapshot.forEach((doc) => {
-                    // console.log(doc.data());
-                    const taskItemData = doc.data();
-                    const taskItem = new TaskItemModel({
-                        id: doc.id,
-                        title: taskItemData.title,
-                        completed: taskItemData.completed,
-                        addCount: taskItemData.addCount,
-                        execCount: taskItemData.execCount,
-                    });
-                    // console.log(taskItem);
-                    this.taskListModel.addTask(taskItem);
-                });
-            });
+        // this.taskListModel = new TaskListModel([]);
+        
+        this.loadTaskList();
 
+        const db = firebase.firestore();
         db.collection('taskItems').onSnapshot((querySnapshot) => {
             // console.log('変更！！');
             this.taskListView = new TaskListView();
@@ -58,7 +41,7 @@ export class TaskController {
                         this.taskListModel.addTask(taskItem);
                     });
                 });
-            // this.mount(this.user);
+            this.mount();
         });
 
         // bind to Element
@@ -70,6 +53,31 @@ export class TaskController {
         // `this`が常に`App`のインスタンスを示すようにする
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
+    }
+
+    loadTaskList(){
+        this.taskListModel = new TaskListModel();
+
+        const db = firebase.firestore();
+        db.collection('taskItems')
+            .where('user', '==', this.user)
+            .get()
+            .then((querySnapshot) => {
+                // console.log(this.user);
+                querySnapshot.forEach((doc) => {
+                    // console.log(doc.data());
+                    const taskItemData = doc.data();
+                    const taskItem = new TaskItemModel({
+                        id: doc.id,
+                        title: taskItemData.title,
+                        completed: taskItemData.completed,
+                        addCount: taskItemData.addCount,
+                        execCount: taskItemData.execCount,
+                    });
+                    // console.log(taskItem);
+                    this.taskListModel.addTask(taskItem);
+                });
+            });
     }
 
     /**
@@ -254,8 +262,7 @@ export class TaskController {
     /**
      * アプリとDOMの紐づけを登録する関数
      */
-    mount(user) {
-        this.user = user;
+    mount() {
         // console.log(this);
         this.taskListModel.onChange(this.handleChange);
         this.taskFormElement.addEventListener('submit', this.handleSubmit);
@@ -267,5 +274,12 @@ export class TaskController {
     unmount() {
         this.taskListModel.offChange(this.handleChange);
         this.taskFormElement.removeEventListener('submit', this.handleSubmit);
+    }
+
+    changeUser(user){
+        this.user = user;
+        this.loadTaskList();
+        this.mount();
+        this.taskListModel.emitChange();
     }
 }

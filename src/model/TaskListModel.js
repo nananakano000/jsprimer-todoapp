@@ -1,7 +1,7 @@
 import { EventEmitter } from "../EventEmitter.js";
 
 export class TaskListModel extends EventEmitter {
-    constructor(tasks) {
+    constructor(tasks = []) {
         super();
         this.tasks = tasks;
     }

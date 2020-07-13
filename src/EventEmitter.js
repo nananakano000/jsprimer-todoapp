@@ -23,6 +23,7 @@ export class EventEmitter {
      * @param {string} type イベント名
      */
     emit(type) {
+        console.log("[start] emit(type)")
         // 指定したイベントに対応するSetを取り出し、すべてのリスナー関数を呼び出す
         const listenerSet = this._listeners.get(type);
         if (!listenerSet) {

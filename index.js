@@ -26,8 +26,8 @@ let taskController = new TaskController({
 });
 
 window.addEventListener('load', () => {
-    todoController.mount('');
-    taskController.mount('');
+    todoController.mount();
+    taskController.mount();
 });
 window.addEventListener('unload', () => {
     todoController.unmount();
@@ -35,19 +35,6 @@ window.addEventListener('unload', () => {
 });
 
 document.getElementById('login-btn').addEventListener('click', () => {
-    // console.log(document.getElementById('login-inp').value);
-    todoController = new TodoController({
-        formElement,
-        formInputElement,
-        todoCountElement,
-        todoListContainerElement,
-    });
-    taskController = new TaskController({
-        taskFormElement,
-        taskFormInputElement,
-        taskCountElement,
-        taskListContainerElement,
-    });
-    todoController.mount(document.getElementById('login-inp').value);
-    taskController.mount(document.getElementById('login-inp').value);
+    todoController.changeUser(document.getElementById('login-inp').value);
+    taskController.changeUser(document.getElementById('login-inp').value);
 });

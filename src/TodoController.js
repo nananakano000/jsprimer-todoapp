@@ -15,26 +15,11 @@ export class TodoController {
     }) {
         this.user = '';
         this.todoListView = new TodoListView();
-        this.todoListModel = new TodoListModel([]);
-        const db = firebase.firestore();
-        db.collection('todoItems')
-            .where('user', '==', this.user)
-            .get()
-            .then((querySnapshot) => {
-                console.log(this.user);
-                querySnapshot.forEach((doc) => {
-                    // console.log(doc.data());
-                    const todoItemData = doc.data();
-                    const todoItem = new TodoItemModel({
-                        id: doc.id,
-                        title: todoItemData.title,
-                        completed: todoItemData.completed,
-                    });
-                    // console.log(todoItem);
-                    this.todoListModel.addTodo(todoItem);
-                });
-            });
+        // this.todoListModel = new TodoListModel([]);
 
+        this.loadTodoList();
+
+        const db = firebase.firestore();
         db.collection('todoItems').onSnapshot((querySnapshot) => {
             // console.log('変更！！');
             this.todoListView = new TodoListView();
@@ -54,7 +39,7 @@ export class TodoController {
                         this.todoListModel.addTodo(todoItem);
                     });
                 });
-            // this.mount(this.user);
+            this.mount();
         });
 
         // bind to Element
@@ -67,7 +52,30 @@ export class TodoController {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
 
-        console.log(this);
+        // console.log(this);
+    }
+
+    loadTodoList() {
+        this.todoListModel = new TodoListModel();
+
+        const db = firebase.firestore();
+        db.collection('todoItems')
+            .where('user', '==', this.user)
+            .get()
+            .then((querySnapshot) => {
+                console.log(this.user);
+                querySnapshot.forEach((doc) => {
+                    // console.log(doc.data());
+                    const todoItemData = doc.data();
+                    const todoItem = new TodoItemModel({
+                        id: doc.id,
+                        title: todoItemData.title,
+                        completed: todoItemData.completed,
+                    });
+                    // console.log(todoItem);
+                    this.todoListModel.addTodo(todoItem);
+                });
+            });
     }
 
     /**
@@ -183,6 +191,7 @@ export class TodoController {
      * TodoListViewが変更した時に呼ばれるリスナー関数
      */
     handleChange() {
+        console.log('[start] handleChange()');
         const todoCountElement = this.todoCountElement;
         const todoListContainerElement = this.todoListContainerElement;
         const todoItems = this.todoListModel.getTodoItems();
@@ -202,8 +211,7 @@ export class TodoController {
     /**
      * アプリとDOMの紐づけを登録する関数
      */
-    mount(user) {
-        this.user = user;
+    mount() {
         // console.log(this);
         this.todoListModel.onChange(this.handleChange);
         this.formElement.addEventListener('submit', this.handleSubmit);
@@ -215,5 +223,15 @@ export class TodoController {
     unmount() {
         this.todoListModel.offChange(this.handleChange);
         this.formElement.removeEventListener('submit', this.handleSubmit);
+    }
+
+    changeUser(user) {
+        // console.log(this.todoListModel)
+        this.user = user;
+        this.loadTodoList();
+        this.mount();
+        this.todoListModel.emitChange();
+        // console.log("//////////changeUser(user)")
+        // console.log(this.todoListModel)
     }
 }
