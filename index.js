@@ -35,6 +35,8 @@ window.addEventListener('unload', () => {
 });
 
 document.getElementById('login-btn').addEventListener('click', () => {
-    todoController.changeUser(document.getElementById('login-inp').value);
-    taskController.changeUser(document.getElementById('login-inp').value);
+    const user = document.getElementById('login-inp').value;
+    todoController.changeUser(user);
+    taskController.changeUser(user);
+    document.getElementById('login-state').innerHTML = `${user} でログインしています。`;
 });
