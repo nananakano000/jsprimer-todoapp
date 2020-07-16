@@ -15,10 +15,40 @@ export class TodoController {
     }) {
         this.user = '';
         this.todoListView = new TodoListView();
-        // this.todoListModel = new TodoListModel([]);
+        this.loadTodoListFromFb();
+        this.onSnapshotForTodoItems();
 
-        this.loadTodoList();
+        // bind to Element
+        this.formElement = formElement;
+        this.formInputElement = formInputElement;
+        this.todoListContainerElement = todoListContainerElement;
+        this.todoCountElement = todoCountElement;
+        // ハンドラ呼び出しで、`this`が変わらないように固定する
+        // `this`が常に`App`のインスタンスを示すようにする
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+    }
 
+    loadTodoListFromFb() {
+        this.todoListModel = new TodoListModel();
+        const db = firebase.firestore();
+        db.collection('todoItems')
+            .where('user', '==', this.user)
+            .get()
+            .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    const todoItemData = doc.data();
+                    const todoItem = new TodoItemModel({
+                        id: doc.id,
+                        title: todoItemData.title,
+                        completed: todoItemData.completed,
+                    });
+                    this.todoListModel.addTodo(todoItem);
+                });
+            });
+    }
+
+    onSnapshotForTodoItems() {
         const db = firebase.firestore();
         db.collection('todoItems').onSnapshot((querySnapshot) => {
             // console.log('変更！！');
@@ -41,41 +71,6 @@ export class TodoController {
                 });
             this.mount();
         });
-
-        // bind to Element
-        this.formElement = formElement;
-        this.formInputElement = formInputElement;
-        this.todoListContainerElement = todoListContainerElement;
-        this.todoCountElement = todoCountElement;
-        // ハンドラ呼び出しで、`this`が変わらないように固定する
-        // `this`が常に`App`のインスタンスを示すようにする
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleChange = this.handleChange.bind(this);
-
-        // console.log(this);
-    }
-
-    loadTodoList() {
-        this.todoListModel = new TodoListModel();
-
-        const db = firebase.firestore();
-        db.collection('todoItems')
-            .where('user', '==', this.user)
-            .get()
-            .then((querySnapshot) => {
-                console.log(this.user);
-                querySnapshot.forEach((doc) => {
-                    // console.log(doc.data());
-                    const todoItemData = doc.data();
-                    const todoItem = new TodoItemModel({
-                        id: doc.id,
-                        title: todoItemData.title,
-                        completed: todoItemData.completed,
-                    });
-                    // console.log(todoItem);
-                    this.todoListModel.addTodo(todoItem);
-                });
-            });
     }
 
     /**
