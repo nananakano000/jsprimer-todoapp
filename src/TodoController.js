@@ -13,7 +13,7 @@ export class TodoController {
         todoListContainerElement,
         todoCountElement,
     }) {
-        this.user = '';
+        this.user = ''; //init user
         this.todoListView = new TodoListView();
         this.loadTodoListFromFb();
         this.onSnapshotForTodoItems();
@@ -28,7 +28,6 @@ export class TodoController {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
     }
-
     loadTodoListFromFb() {
         this.todoListModel = new TodoListModel();
         const db = firebase.firestore();
@@ -47,7 +46,6 @@ export class TodoController {
                 });
             });
     }
-
     onSnapshotForTodoItems() {
         const db = firebase.firestore();
         db.collection('todoItems').onSnapshot((querySnapshot) => {
@@ -79,15 +77,16 @@ export class TodoController {
      */
     handleAdd(title) {
         const self = this;
-        const db = firebase.firestore();
-        console.log(title);
-        console.log(this);
         const todoItem = {
             id: 0,
             title: title,
             completed: false,
             user: this.user,
         };
+        this.addTodoItemAndUpdateFb(self, todoItem);
+    }
+    addTodoItemAndUpdateFb(self, todoItem) {
+        const db = firebase.firestore();
         db.collection('todoItems')
             .add(todoItem)
             .then(function (docRef) {
@@ -112,7 +111,6 @@ export class TodoController {
                 console.error('Error adding document: ', error);
             });
     }
-
     dbUpdateIdFor(doc) {
         const db = firebase.firestore();
         db.collection('todoItems')
@@ -133,7 +131,6 @@ export class TodoController {
         this.todoListModel.updateTodo({ id, completed });
         this.dbUpdateCompletedFor(id, completed);
     }
-
     dbUpdateCompletedFor(id, completed) {
         const db = firebase.firestore();
         db.collection('todoItems')
@@ -157,7 +154,6 @@ export class TodoController {
         this.todoListModel.deleteTodo({ id });
         this.dbDeletedFor(id);
     }
-
     dbDeletedFor(id) {
         const db = firebase.firestore();
         db.collection('todoItems')
@@ -221,12 +217,9 @@ export class TodoController {
     }
 
     changeUser(user) {
-        // console.log(this.todoListModel)
         this.user = user;
         this.loadTodoList();
         this.mount();
         this.todoListModel.emitChange();
-        // console.log("//////////changeUser(user)")
-        // console.log(this.todoListModel)
     }
 }
