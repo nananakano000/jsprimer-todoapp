@@ -15,10 +15,21 @@ export class TaskController {
     }) {
         this.user = '';
         this.taskListView = new TaskListView();
-        // this.taskListModel = new TaskListModel([]);
-        
         this.loadTaskList();
+        this.onSnapshotForTaskItems();
 
+        // bind to Element
+        this.taskFormElement = taskFormElement;
+        this.taskFormInputElement = taskFormInputElement;
+        this.taskListContainerElement = taskListContainerElement;
+        this.taskCountElement = taskCountElement;
+        // ハンドラ呼び出しで、`this`が変わらないように固定する
+        // `this`が常に`App`のインスタンスを示すようにする
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+    }
+
+    onSnapshotForTaskItems() {
         const db = firebase.firestore();
         db.collection('taskItems').onSnapshot((querySnapshot) => {
             // console.log('変更！！');
@@ -43,19 +54,8 @@ export class TaskController {
                 });
             this.mount();
         });
-
-        // bind to Element
-        this.taskFormElement = taskFormElement;
-        this.taskFormInputElement = taskFormInputElement;
-        this.taskListContainerElement = taskListContainerElement;
-        this.taskCountElement = taskCountElement;
-        // ハンドラ呼び出しで、`this`が変わらないように固定する
-        // `this`が常に`App`のインスタンスを示すようにする
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleChange = this.handleChange.bind(this);
     }
-
-    loadTaskList(){
+    loadTaskList() {
         this.taskListModel = new TaskListModel();
 
         const db = firebase.firestore();
@@ -86,8 +86,7 @@ export class TaskController {
      */
     handleAdd(title) {
         // this.taskListModel.addTask(new TaskItemModel({ title, completed: false }));
-        const self = this;
-        const db = firebase.firestore();
+
         // console.log(this);
         const taskItem = {
             id: 0,
@@ -97,6 +96,12 @@ export class TaskController {
             execCount: 0,
             user: this.user,
         };
+        this.addTaskForFb(taskItem);
+    }
+
+    addTaskForFb(taskItem) {
+        const self = this;
+        const db = firebase.firestore();
         db.collection('taskItems')
             .add(taskItem)
             .then(function (docRef) {
@@ -184,21 +189,21 @@ export class TaskController {
     }
 
     handleAddTaskToTodo({ id }) {
-        // const newarr = [0, 1, 3].filter(n=>n>0)
-        // console.log(newarr)
-        const addItems = this.taskListModel
+        const addItem = this.taskListModel
             .getTaskItems()
             .filter((taskItem) => taskItem.id === id);
-        // console.log(addItems[0].id)
-        const db = firebase.firestore();
-        // console.log(db);
+
         const todoItem = {
             id: 0,
-            title: addItems[0].title,
+            title: addItem[0].title,
             completed: false,
             user: this.user,
         };
-        console.log(db);
+        this.addFbTodoItemFor(todoItem);
+    }
+
+    addFbTodoItemFor(todoItem) {
+        const db = firebase.firestore();
         db.collection('todoItems')
             .add(todoItem)
             .then(function (docRef) {
@@ -276,7 +281,7 @@ export class TaskController {
         this.taskFormElement.removeEventListener('submit', this.handleSubmit);
     }
 
-    changeUser(user){
+    changeUser(user) {
         this.user = user;
         this.loadTaskList();
         this.mount();
