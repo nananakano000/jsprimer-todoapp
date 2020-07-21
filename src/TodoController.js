@@ -69,32 +69,35 @@ export class TodoController {
             completed: false,
             user: this.user,
         };
-        this.addTodoItemAndUpdateFb(self, todoItem);
+        this.addTodoItemForTodoList(self, todoItem);
     }
-    addTodoItemAndUpdateFb(self, todoItem) {
+    addTodoItemForTodoList(self, todoItem) {
         const db = firebase.firestore();
         db.collection('todoItems')
             .add(todoItem)
             .then(function (docRef) {
                 // console.log('Document written with ID: ', docRef.id);
-                docRef
-                    .get()
-                    .then(function (doc) {
-                        self.dbUpdateIdFor(doc);
-                        self.todoListModel.addTodo(
-                            new TodoItemModel({
-                                id: doc.id,
-                                title: doc.data().title,
-                                completed: false,
-                            })
-                        );
-                    })
-                    .catch(function (error) {
-                        console.log('Error getting document:', error);
-                    });
+                this.updateTdItemIdForDBAndAddTdItemForTdList(docRef, self);
             })
             .catch(function (error) {
                 console.error('Error adding document: ', error);
+            });
+    }
+    updateTdItemIdForDBAndAddTdItemForTdList(docRef, self) {
+        docRef
+            .get()
+            .then(function (doc) {
+                self.updateTodoItemIdForDB(doc);
+                self.todoListModel.addTodo(
+                    new TodoItemModel({
+                        id: doc.id,
+                        title: doc.data().title,
+                        completed: false,
+                    })
+                );
+            })
+            .catch(function (error) {
+                console.log('Error getting document:', error);
             });
     }
     updateTodoItemIdForDB(doc) {
