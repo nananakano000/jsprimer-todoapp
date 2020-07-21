@@ -38,5 +38,7 @@ document.getElementById('login-btn').addEventListener('click', () => {
     const user = document.getElementById('login-inp').value;
     todoController.changeUser(user);
     taskController.changeUser(user);
-    document.getElementById('login-state').innerHTML = `${user} でログインしています。`;
+    document.getElementById(
+        'login-state'
+    ).innerHTML = `${user} でログインしています。`;
 });

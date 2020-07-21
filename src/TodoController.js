@@ -14,10 +14,8 @@ export class TodoController {
         todoCountElement,
     }) {
         this.user = ''; //init user
-        this.todoListView = new TodoListView();
-        this.loadTodoListFromFb();
-        this.onSnapshotForTodoItems();
-
+        this.reloadTodoList();
+        this.settingOnSnapshotForTodoItems();
         // bind to Element
         this.formElement = formElement;
         this.formInputElement = formInputElement;
@@ -28,45 +26,33 @@ export class TodoController {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
     }
-    loadTodoListFromFb() {
+    reloadTodoList() {
+        this.todoListView = new TodoListView();
         this.todoListModel = new TodoListModel();
         const db = firebase.firestore();
         db.collection('todoItems')
             .where('user', '==', this.user)
             .get()
             .then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                    const todoItemData = doc.data();
-                    const todoItem = new TodoItemModel({
-                        id: doc.id,
-                        title: todoItemData.title,
-                        completed: todoItemData.completed,
-                    });
-                    this.todoListModel.addTodo(todoItem);
-                });
+                this.addTodoItemsForTodoList(querySnapshot);
             });
     }
-    onSnapshotForTodoItems() {
+    addTodoItemsForTodoList(querySnapshot) {
+        querySnapshot.forEach((doc) => {
+            const todoItemData = doc.data();
+            const todoItem = new TodoItemModel({
+                id: doc.id,
+                title: todoItemData.title,
+                completed: todoItemData.completed,
+            });
+            this.todoListModel.addTodo(todoItem);
+        });
+    }
+    settingOnSnapshotForTodoItems() {
         const db = firebase.firestore();
         db.collection('todoItems').onSnapshot((querySnapshot) => {
-            // console.log('変更！！');
-            this.todoListView = new TodoListView();
-            this.todoListModel = new TodoListModel([]);
-            db.collection('todoItems')
-                .where('user', '==', this.user)
-                .get()
-                .then((querySnapshot) => {
-                    querySnapshot.forEach((doc) => {
-                        // console.log(doc.data());
-                        const todoItemData = doc.data();
-                        const todoItem = new TodoItemModel({
-                            id: doc.id,
-                            title: todoItemData.title,
-                            completed: todoItemData.completed,
-                        });
-                        this.todoListModel.addTodo(todoItem);
-                    });
-                });
+            this.reloadTodoList();
+            //リスナーを再登録＆再読み込み
             this.mount();
         });
     }
@@ -90,7 +76,7 @@ export class TodoController {
         db.collection('todoItems')
             .add(todoItem)
             .then(function (docRef) {
-                console.log('Document written with ID: ', docRef.id);
+                // console.log('Document written with ID: ', docRef.id);
                 docRef
                     .get()
                     .then(function (doc) {
@@ -111,7 +97,7 @@ export class TodoController {
                 console.error('Error adding document: ', error);
             });
     }
-    dbUpdateIdFor(doc) {
+    updateTodoItemIdForDB(doc) {
         const db = firebase.firestore();
         db.collection('todoItems')
             .doc(doc.id)
