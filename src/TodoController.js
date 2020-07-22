@@ -118,9 +118,9 @@ export class TodoController {
      */
     handleUpdate({ id, completed }) {
         this.todoListModel.updateTodo({ id, completed });
-        this.dbUpdateCompletedFor(id, completed);
+        this.updateTodoItemCompletedAtDBFor(id, completed);
     }
-    dbUpdateCompletedFor(id, completed) {
+    updateTodoItemCompletedAtDBFor(id, completed) {
         const db = firebase.firestore();
         db.collection('todoItems')
             .doc(id)
@@ -141,9 +141,9 @@ export class TodoController {
      */
     handleDelete({ id }) {
         this.todoListModel.deleteTodo({ id });
-        this.dbDeletedFor(id);
+        this.deleteTodoItemAtDBFor(id);
     }
-    dbDeletedFor(id) {
+    deleteTodoItemAtDBFor(id) {
         const db = firebase.firestore();
         db.collection('todoItems')
             .doc(id)
