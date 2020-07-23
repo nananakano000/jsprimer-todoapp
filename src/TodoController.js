@@ -77,17 +77,17 @@ export class TodoController {
             .add(todoItem)
             .then(function (docRef) {
                 // console.log('Document written with ID: ', docRef.id);
-                this.updateTdItemIdForDBAndAddTdItemForTdList(docRef, self);
+                this.updateTdItemIdInDBAndAddTdItemForTdList(docRef, self);
             })
             .catch(function (error) {
                 console.error('Error adding document: ', error);
             });
     }
-    updateTdItemIdForDBAndAddTdItemForTdList(docRef, self) {
+    updateTdItemIdInDBAndAddTdItemForTdList(docRef, self) {
         docRef
             .get()
             .then(function (doc) {
-                self.updateTodoItemIdForDB(doc);
+                self.updateTodoItemIdInDBFor(doc);
                 self.todoListModel.addTodo(
                     new TodoItemModel({
                         id: doc.id,
@@ -100,7 +100,7 @@ export class TodoController {
                 console.log('Error getting document:', error);
             });
     }
-    updateTodoItemIdForDB(doc) {
+    updateTodoItemIdInDBFor(doc) {
         const db = firebase.firestore();
         db.collection('todoItems')
             .doc(doc.id)
@@ -118,9 +118,9 @@ export class TodoController {
      */
     handleUpdate({ id, completed }) {
         this.todoListModel.updateTodo({ id, completed });
-        this.updateTodoItemCompletedAtDBFor(id, completed);
+        this.updateTodoItemCompletedInDBFor(id, completed);
     }
-    updateTodoItemCompletedAtDBFor(id, completed) {
+    updateTodoItemCompletedInDBFor(id, completed) {
         const db = firebase.firestore();
         db.collection('todoItems')
             .doc(id)
@@ -141,9 +141,9 @@ export class TodoController {
      */
     handleDelete({ id }) {
         this.todoListModel.deleteTodo({ id });
-        this.deleteTodoItemAtDBFor(id);
+        this.deleteTodoItemInDBFor(id);
     }
-    deleteTodoItemAtDBFor(id) {
+    deleteTodoItemInDBFor(id) {
         const db = firebase.firestore();
         db.collection('todoItems')
             .doc(id)

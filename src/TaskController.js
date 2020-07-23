@@ -14,9 +14,8 @@ export class TaskController {
         taskCountElement,
     }) {
         this.user = '';
-        this.taskListView = new TaskListView();
-        this.loadTaskList();
-        this.onSnapshotForTaskItems();
+        this.reloadTaskList();
+        this.settingOnSnapshotForTaskItems();
 
         // bind to Element
         this.taskFormElement = taskFormElement;
@@ -28,34 +27,8 @@ export class TaskController {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
     }
-
-    onSnapshotForTaskItems() {
-        const db = firebase.firestore();
-        db.collection('taskItems').onSnapshot((querySnapshot) => {
-            // console.log('変更！！');
-            this.taskListView = new TaskListView();
-            this.taskListModel = new TaskListModel([]);
-            db.collection('taskItems')
-                .where('user', '==', this.user)
-                .get()
-                .then((querySnapshot) => {
-                    querySnapshot.forEach((doc) => {
-                        // console.log(doc.data());
-                        const taskItemData = doc.data();
-                        const taskItem = new TaskItemModel({
-                            id: doc.id,
-                            title: taskItemData.title,
-                            completed: taskItemData.completed,
-                            addCount: taskItemData.addCount,
-                            execCount: taskItemData.execCount,
-                        });
-                        this.taskListModel.addTask(taskItem);
-                    });
-                });
-            this.mount();
-        });
-    }
-    loadTaskList() {
+    reloadTaskList() {
+        this.taskListView = new TaskListView();
         this.taskListModel = new TaskListModel();
 
         const db = firebase.firestore();
@@ -63,21 +36,28 @@ export class TaskController {
             .where('user', '==', this.user)
             .get()
             .then((querySnapshot) => {
-                // console.log(this.user);
-                querySnapshot.forEach((doc) => {
-                    // console.log(doc.data());
-                    const taskItemData = doc.data();
-                    const taskItem = new TaskItemModel({
-                        id: doc.id,
-                        title: taskItemData.title,
-                        completed: taskItemData.completed,
-                        addCount: taskItemData.addCount,
-                        execCount: taskItemData.execCount,
-                    });
-                    // console.log(taskItem);
-                    this.taskListModel.addTask(taskItem);
-                });
+                this.addTaskItemsForTaskList(querySnapshot);
             });
+    }
+    addTaskItemsForTaskList(querySnapshot) {
+        querySnapshot.forEach((doc) => {
+            const taskItemData = doc.data();
+            const taskItem = new TaskItemModel({
+                id: doc.id,
+                title: taskItemData.title,
+                completed: taskItemData.completed,
+                addCount: taskItemData.addCount,
+                execCount: taskItemData.execCount,
+            });
+            this.taskListModel.addTask(taskItem);
+        });
+    }
+    settingOnSnapshotForTaskItems() {
+        const db = firebase.firestore();
+        db.collection('taskItems').onSnapshot((querySnapshot) => {
+            this.reloadTaskList();
+            this.mount();
+        });
     }
 
     /**
@@ -96,10 +76,10 @@ export class TaskController {
             execCount: 0,
             user: this.user,
         };
-        this.addTaskForFb(taskItem);
+        this.addTaskItemInDB(taskItem);
     }
 
-    addTaskForFb(taskItem) {
+    addTaskItemInDB(taskItem) {
         const self = this;
         const db = firebase.firestore();
         db.collection('taskItems')
@@ -109,7 +89,7 @@ export class TaskController {
                 docRef
                     .get()
                     .then(function (doc) {
-                        self.dbUpdateIdFor(doc);
+                        self.updateTaskItemIdInDBFor(doc);
                         self.taskListModel.addTask(
                             new TaskItemModel({
                                 id: doc.id,
@@ -128,8 +108,7 @@ export class TaskController {
                 console.error('Error adding document: ', error);
             });
     }
-
-    dbUpdateIdFor(doc) {
+    updateTaskItemIdInDBFor(doc) {
         const db = firebase.firestore();
         db.collection('taskItems')
             .doc(doc.id)
@@ -147,10 +126,10 @@ export class TaskController {
      */
     handleUpdate({ id, completed }) {
         this.taskListModel.updateTask({ id, completed });
-        this.dbUpdateCompletedFor(id, completed);
+        this.updateTaskItemCompletedInDBFor(id, completed);
     }
 
-    dbUpdateCompletedFor(id, completed) {
+    updateTaskItemCompletedInDBFor(id, completed) {
         const db = firebase.firestore();
         db.collection('taskItems')
             .doc(id)
@@ -171,10 +150,10 @@ export class TaskController {
      */
     handleDelete({ id }) {
         this.taskListModel.deleteTask({ id });
-        this.dbDeletedFor(id);
+        this.deletedTaskItemInDBFor(id);
     }
 
-    dbDeletedFor(id) {
+    deletedTaskItemInDBFor(id) {
         // console.log(id)
         const db = firebase.firestore();
         db.collection('taskItems')
