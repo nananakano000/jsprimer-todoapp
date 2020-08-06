@@ -2,29 +2,25 @@
   <head>
     <meta charset="UTF-8" />
     <title>Todo App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- 1. CSSファイルを読み込み -->
     <!-- <link
       href="https://jsprimer.net/use-case/todoapp/final/final/index.css"
       rel="stylesheet"
     /> -->
+    <link rel="stylesheet" href="css/bootstrap.css">
   </head>
   <body>
-    <h1>Omerice</h1>
-    <div id="login">
+    <h1 class="font-weight-bold m-5">Omerice</h1>
+
+    <div id="login" class="m-5">
       <p>login</p>
-      <input type="text" id="login-inp">
-      <input type="button" value="login" id="login-btn">
-      <!-- <p>create new user</p>
-      <input type="text">
-      <input type="button" value="create"> -->
-      <!-- <h2>ログイン状態</h2>
-      <span>hayato でログイン</span> -->
+      <input type="text" id="login-inp" class="">
+      <input type="button" value="login" id="login-btn" class="btn-outline-secondary">
       <br><p id="login-state" >ログインしていません。</p>
     </div>
 
-    <br>
-
-    <div class="todoapp">
+    <div class="todoapp m-5">
       <!-- 3. id属性をJavaScriptのために指定 -->
       <form id="js-task-form">
         <input
@@ -45,10 +41,8 @@
       </footer>
     </div>
 
-    <br>
-
     <!-- 2. class属性をCSSのために指定 -->
-    <div class="todoapp">
+    <div class="todoapp m-5">
       <!-- 3. id属性をJavaScriptのために指定 -->
       <form id="js-form">
         <input
@@ -68,6 +62,10 @@
         <span id="js-todo-count">Todoアイテム数: 0</span>
       </footer>
     </div>
+
     <script src="./index.js" type="module"></script>
+
+    <script type="text/javascript" src="js/jquery-3.5.1.js"></script>
+    <script type="text/javascript" src="js/bootstrap.bundle.js"></script>
   </body>
 </html>

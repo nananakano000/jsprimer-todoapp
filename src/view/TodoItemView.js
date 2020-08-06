@@ -12,11 +12,11 @@ export class TodoItemView {
         const todoItemElement = todoItem.completed
             ? element`<li><input type="checkbox" class="checkbox" checked>
                                     <s>${todoItem.title}</s>
-                                    <button class="delete">x</button>
+                                    <button class="delete btn-outline-danger">x</button>
                                 </li>`
             : element`<li><input type="checkbox" class="checkbox">
-                                    ${todoItem.title}
-                                    <button class="delete">x</button>
+                                    <span class="font-weight-bold">${todoItem.title}</span>
+                                    <button class="delete btn-outline-danger">x</button>
                                 </li>`;
         const inputCheckboxElement = todoItemElement.querySelector('.checkbox');
         inputCheckboxElement.addEventListener('change', () => {

@@ -5,13 +5,13 @@ export class TaskItemView {
         const taskItemElement = taskItem.completed
             ? element`<li><input type="checkbox" class="checkbox" checked>
                                     <s>${taskItem.title}</s>
-                                    <button class="add-todo"> [todoに追加] </button>
-                                    <button class="delete">x</button>
+                                    <button class="add-todo btn-outline-secondary"> [todoに追加] </button>
+                                    <button class="delete btn-outline-danger">x</button>
                                 </li>`
             : element`<li><input type="checkbox" class="checkbox">
-                                    ${taskItem.title}
-                                    <button class="add-todo"> [todoに追加] </button>
-                                    <button class="delete">x</button>
+                                    <span class="font-weight-bold">${taskItem.title}</span>
+                                    <button class="add-todo btn-outline-secondary"> [todoに追加] </button>
+                                    <button class="delete btn-outline-danger">x</button>
                                 </li>`;
         const inputCheckboxElement = taskItemElement.querySelector('.checkbox');
         inputCheckboxElement.addEventListener('change', () => {
